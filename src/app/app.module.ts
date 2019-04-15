@@ -32,6 +32,11 @@ import { NotFoundComponent } from './not-found/not-found.component'
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { LoginComponent } from './security/login/login.component'
 import { LoginService } from './security/login/login.service';
+import { LoggedInGuard } from './security/loggedin.guard';
+import { UserDetailComponent } from './header/user-detail/user-detail.component';
+
+import { HTTP_INTERCEPTORS } from '@angular/common/http'
+import { AuthInterceptor } from './security/auth.interceptor';
 
 
 @NgModule({
@@ -49,14 +54,16 @@ import { LoginService } from './security/login/login.service';
     OrderSummaryComponent,
     NotFoundComponent,
     LoginComponent,
+    UserDetailComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    SharedModule.forRoot(),
     RouterModule.forRoot(ROUTES, { preloadingStrategy: PreloadAllModules }),
-    SharedModule.forRoot()
   ],
+  // PreloadAllModules fornece uma estratégia de pré-carregamento que pré-carrega todos os módulos o mais rápido possível.
 
   // Modificando a Estratégia de Navegação (Hash) -> provide: LocationStrategy, useClass: HashLocationStrategy
   /*
@@ -64,7 +71,10 @@ import { LoginService } from './security/login/login.service';
               {provide: LOCALE_ID, useValue: 'pt-BR'}],
   */            
        
-  providers: [LoginService, {provide: LOCALE_ID, useValue: 'pt-BR'}],
+  providers: [LoginService,
+              LoggedInGuard,
+              {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }, 
+              {provide: LOCALE_ID, useValue: 'pt-BR'}],
             
 
   bootstrap: [AppComponent]
